@@ -633,15 +633,15 @@ wipe_data(int confirm) {
         static char** title_headers = NULL;
 
         if (title_headers == NULL) {
-            char* headers[] = { "Confirm wipe of all user data?",
-                                "  THIS CAN NOT BE UNDONE.",
+            char* headers[] = { "Wipe user data?",
+                                "  this will not be undone.",
                                 "",
                                 NULL };
             title_headers = prepend_title((const char**)headers);
         }
 
-        char* items[] = { " No",
-                          " Yes -- delete all user data",   // [1]
+        char* items[] = { " NO",
+                          " YES -- Wipe all user data",   // [1]
                           NULL };
 
         int chosen_item = get_menu_selection(title_headers, items, 1, 0);
@@ -737,6 +737,11 @@ print_property(const char *key, const char *name, void *cookie) {
 
 int
 main(int argc, char **argv) {
+
+    // Recovery needs to install world-readable files, so clear umask
+    // set by init
+    umask(0);
+
     if (strcmp(basename(argv[0]), "recovery") != 0)
     {
         if (strstr(argv[0], "minizip") != NULL)
@@ -779,10 +784,6 @@ main(int argc, char **argv) {
 
     int is_user_initiated_recovery = 0;
     time_t start = time(NULL);
-
-    // Recovery needs to install world-readable files, so clear umask
-    // set by init
-    umask(0);
 
     // If these fail, there's not really anywhere to complain...
     freopen(TEMPORARY_LOG_FILE, "a", stdout); setbuf(stdout, NULL);
